@@ -1,0 +1,16 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=3728
+
+This script can be used to align string under cursor to the right border. The value of the right border column can be specified using global varialbe g:RightBorder in your .vimrc file, for example:
+
+let g:RightBorder = 80
+
+If g:RightBorder is not set then value of textwidth option will be used. Alignment to the right border means that the right edge of the string will not exceed the specified value but will be as close as possible according to your shiftwidth and shiftround settings. For example if shiftwidth is 4, shiftround is set, g:RightBorder is 80 and length of the current line is 14, then first non-space character of this line will be moved to 65th column. This behaviour differs from that of builtin command :right.
+
+The script provides single command RightAlign with an optional argument. The optional argument can be set to 'kc' in order to make script function keep cursor on the same character of the line when moving it: this is especially useful in insert mode.
+
+To use script effectively you can choose to use mappings in insert and normal mode, for example
+
+imap <silent> <C-b>    <Plug>RightAlign
+nmap <silent> <C-m>b    :RightAlign<CR>
+
+Now when you press ^b in insert mode the line under cursor will be aligned to the right according to values of the g:RightBorder or textwidth, cursor position will not change in relation to the content of the string. This mapping can be regarded as addition to existing commands ^d, ^t and ^f in insert mode. The second mapping enables RightAlign in normal mode when pressing ^mb.
