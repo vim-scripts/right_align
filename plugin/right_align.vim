@@ -8,7 +8,7 @@
 "   Global variable g:RightBorder will be used as the right border value, if
 "   not set then value of textwidth option will be used instead
 "   Recommended mappings are
-"       imap <silent> <C-b>  <C-\><C-o>:RightAlign on<CR>
+"       imap <silent> <C-b>  <Plug>RightAlign
 "       nmap <silent> <C-m>b :RightAlign<CR>
 
 
@@ -24,20 +24,26 @@ else
     let s:RightBorder = &textwidth
 endif
 
-function! s:right_align(right_border, ...)
-    let indent_cmd = ":"
+function! <SID>right_align(right_border, ...)
+    let indent_cmd = ''
     let move_left = 0
     let tab_width = &et ? &sw : 1
-    let save_cursor = getpos(".")
+    let keep_cursor = a:0 > 0 && a:1 == 'kc'
+    let save_cursor = getpos('.')
     let move_cursor = 0
-    let line_length = virtcol("$") - 1
+    let line_length = virtcol('$') - 1
     let line_diff = a:right_border - line_length
     let move_count = line_diff / &sw
-    exe "normal ^"
-    let start_pos = virtcol(".") - 1
+    normal ^
+    let start_pos = virtcol('.') - 1
     let start_shift = start_pos % &sw
     let end_shift = line_diff % &sw
-    call setpos(".", save_cursor)
+    call setpos('.', save_cursor)
+    " restore cursor position after undo (see Tip 1595 in vim.wikia.com)
+    if keep_cursor
+        normal ix
+        normal x
+    endif
     if &shiftround && start_shift > 0
         if line_diff >= 0
             if &sw - start_shift <= line_diff % &sw
@@ -79,11 +85,16 @@ function! s:right_align(right_border, ...)
     for i in range(1, move_count)
         let indent_cmd .= move_left ? '<' : '>'
     endfor
-    exe indent_cmd
-    if a:0 > 0 && a:1 == 'on'
-        call setpos(".", save_cursor)
+    if !empty('indent_cmd')
+        exe indent_cmd
     endif
+    if keep_cursor
+        call setpos('.', save_cursor)
+    endif
+    return ''
 endfunction
 
-command! -nargs=* RightAlign call s:right_align(s:RightBorder, <f-args>)
+command! -nargs=* RightAlign    call s:right_align(s:RightBorder, <f-args>)
+
+imap <silent> <Plug>RightAlign  <C-r>=<SID>right_align(g:RightBorder, 'kc')<CR>
 
