@@ -25,6 +25,9 @@ else
 endif
 
 function! <SID>right_align(right_border, ...)
+    if getline('.') =~ '^[[:blank:]]*$'
+        return ''
+    endif
     let indent_cmd = ''
     let move_left = 0
     let tab_width = &et ? &sw : 1
