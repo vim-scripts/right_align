@@ -11,6 +11,7 @@ The script provides single command RightAlign with an optional argument. The opt
 To use script effectively you can choose to use mappings in insert and normal mode, for example
 
 imap <silent> <C-b>    <Plug>RightAlign
-nmap <silent> <C-m>b    :RightAlign<CR>
+nmap <silent> <C-k>b    :RightAlign<CR>
+vmap <silent> <C-k>b    :RightAlign<CR>
 
-Now when you press ^b in insert mode the line under cursor will be aligned to the right according to values of the g:RightBorder or textwidth, cursor position will not change in relation to the content of the string. This mapping can be regarded as addition to existing commands ^d, ^t and ^f in insert mode. The second mapping enables RightAlign in normal mode when pressing ^mb.
+Now when you press ^b in insert mode the line under cursor will be aligned to the right according to values of the g:RightBorder or textwidth, cursor position will not change in relation to the content of the string. This mapping can be regarded as addition to existing commands ^d, ^t and ^f in insert mode. The second and third mappings enable RightAlign in normal and visual modes respectively when pressing ^kb. In normal mode a range value may be specified to right-align multiple lines at once, for example entering 10^kb will right-align the current line and 9 lines below it.

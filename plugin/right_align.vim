@@ -1,7 +1,8 @@
 " File: right_align.vim
 " Author: Alexey Radkov
+" Version: 0.4
 " Description: A function to set right indentation, it can be useful in insert
-"              mode along with ^T, ^D and ^F
+"              mode in addition to ^T, ^D and ^F
 " Usage:
 "   Command :RightAlign to align current line to a right border, the optional
 "   argument indicates that position of the cursor must be kept
@@ -9,7 +10,8 @@
 "   not set then value of textwidth option will be used instead
 "   Recommended mappings are
 "       imap <silent> <C-b>  <Plug>RightAlign
-"       nmap <silent> <C-m>b :RightAlign<CR>
+"       nmap <silent> <C-k>b :RightAlign<CR>
+"       vmap <silent> <C-k>b :RightAlign<CR>
 
 
 if exists('right_align_plugin')
@@ -97,7 +99,8 @@ function! <SID>right_align(right_border, ...)
     return ''
 endfunction
 
-command! -nargs=* RightAlign    call s:right_align(s:RightBorder, <f-args>)
+command! -range -nargs=* RightAlign     <line1>,<line2>
+            \ call s:right_align(s:RightBorder, <f-args>)
 
 imap <silent> <Plug>RightAlign  <C-r>=<SID>right_align(g:RightBorder, 'kc')<CR>
 
