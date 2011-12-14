@@ -1,13 +1,17 @@
 " File: right_align.vim
 " Author: Alexey Radkov
-" Version: 0.4
+" Version: 0.5
 " Description: A function to set right indentation, it can be useful in insert
 "              mode in addition to ^T, ^D and ^F
 " Usage:
 "   Command :RightAlign to align current line to a right border, the optional
-"   argument indicates that position of the cursor must be kept
-"   Global variable g:RightBorder will be used as the right border value, if
-"   not set then value of textwidth option will be used instead
+"   argument indicates that position of the cursor must be kept.
+"   Global variable g:RightAlign_RightBorder will be used as the right border
+"   value, if not set then value of option 'textwidth' will be used instead.
+"   If global variable g:RightAlign_ShiftRound is set then start position of
+"   the line after motion will be shiftwidth-fold, otherwise the start
+"   position will depend on whether option 'shiftround' is set or not. Default
+"   value of g:RightAlign_ShiftRound is 1.
 "   Recommended mappings are
 "       imap <silent> <C-b>  <Plug>RightAlign
 "       nmap <silent> <C-k>b :RightAlign<CR>
@@ -20,10 +24,12 @@ endif
 
 let right_align_plugin = 1
 
-if exists('g:RightBorder')
-    let s:RightBorder = g:RightBorder
-else
-    let s:RightBorder = &textwidth
+if !exists('g:RightAlign_RightBorder')
+    let g:RightAlign_RightBorder = &textwidth
+endif
+
+if !exists('g:RightAlign_ShiftRound')
+    let g:RightAlign_ShiftRound = 1
 endif
 
 function! <SID>right_align(right_border, ...)
@@ -39,6 +45,11 @@ function! <SID>right_align(right_border, ...)
     let line_length = virtcol('$') - 1
     let line_diff = a:right_border - line_length
     let move_count = line_diff / &sw
+    let restore_noshiftround = 0
+    if g:RightAlign_ShiftRound && ! &shiftround
+        set shiftround
+        let restore_noshiftround = 1
+    endif
     normal ^
     let start_pos = virtcol('.') - 1
     let start_shift = start_pos % &sw
@@ -49,7 +60,7 @@ function! <SID>right_align(right_border, ...)
         normal ix
         normal x
     endif
-    if &shiftround && start_shift > 0
+    if g:RightAlign_ShiftRound && start_shift > 0
         if line_diff >= 0
             if &sw - start_shift <= line_diff % &sw
                 let move_count += 1
@@ -90,17 +101,21 @@ function! <SID>right_align(right_border, ...)
     for i in range(1, move_count)
         let indent_cmd .= move_left ? '<' : '>'
     endfor
-    if !empty('indent_cmd')
+    if !empty(indent_cmd)
         exe indent_cmd
     endif
     if keep_cursor
         call setpos('.', save_cursor)
     endif
+    if restore_noshiftround
+        set noshiftround
+    endif
     return ''
 endfunction
 
 command! -range -nargs=* RightAlign     <line1>,<line2>
-            \ call s:right_align(s:RightBorder, <f-args>)
+            \ call s:right_align(g:RightAlign_RightBorder, <f-args>)
 
-imap <silent> <Plug>RightAlign  <C-r>=<SID>right_align(g:RightBorder, 'kc')<CR>
+imap <silent> <Plug>RightAlign
+            \ <C-r>=<SID>right_align(g:RightAlign_RightBorder, 'kc')<CR>
 
