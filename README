@@ -4,7 +4,7 @@ This script can be used to align the line under cursor to the right border. The 
 
 let g:RightAlign_RightBorder = 80
 
-If g:RightAlign_RightBorder is not set then value of option textwidth will be used. Alignment to the right border means that the right edge of the string will not exceed the specified value but will be as close as possible according to your shiftwidth and shiftround settings. For example if shiftwidth is 4, shiftround is set, g:RightBorder is 80 and length of the current line is 14, then first non-space character of this line will be moved to 65th column. This behaviour differs from that of builtin command :right.
+If g:RightAlign_RightBorder is not set then value of option textwidth will be used. Alignment to the right border means that the right edge of the string will not exceed the specified value but will be as close as possible according to your shiftwidth and shiftround settings. For example if shiftwidth is 4, shiftround is set, g:RightAlign_RightBorder is 80 and length of the current line is 14, then first non-space character of this line will be moved to 65th column. This behaviour differs from that of builtin command :right.
 
 Since version 0.5 the shiftround behaviour is active even If you did not set option shiftround. This is due to default value of variable g:RightAlign_ShiftRound is equal 1. If you do not want shiftround behaviour then put in your .vimrc line
 
@@ -18,4 +18,4 @@ imap <silent> <C-b>    <Plug>RightAlign
 nmap <silent> <C-k>b    :RightAlign<CR>
 vmap <silent> <C-k>b    :RightAlign<CR>
 
-Now when you press ^b in insert mode the line under cursor will be aligned to the right according to values of the g:RightBorder or textwidth, cursor position will not change in relation to the content of the string. This mapping can be regarded as addition to existing commands ^d, ^t and ^f in insert mode. The second and third mappings enable RightAlign in normal and visual modes respectively when pressing ^kb. In normal mode a range value may be specified to right-align multiple lines at once, for example entering 10^kb will right-align the current line and 9 lines below it.
+Now when you press ^b in insert mode the line under cursor will be aligned to the right according to values of the g:RightAlign_RightBorder or textwidth, cursor position will not change in relation to the content of the string. This mapping can be regarded as addition to existing commands ^d, ^t and ^f in insert mode. The second and third mappings enable RightAlign in normal and visual modes respectively when pressing ^kb. In normal mode a range value may be specified to right-align multiple lines at once, for example entering 10^kb will right-align the current line and 9 lines below it.

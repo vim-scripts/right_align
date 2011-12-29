@@ -1,6 +1,6 @@
 " File: right_align.vim
 " Author: Alexey Radkov
-" Version: 0.5.1
+" Version: 0.6
 " Description: A function to set right indentation, it can be useful in insert
 "              mode in addition to ^T, ^D and ^F
 " Usage:
@@ -32,14 +32,10 @@ if !exists('g:RightAlign_ShiftRound')
     let g:RightAlign_ShiftRound = 1
 endif
 
-function! <SID>right_align(right_border, ...)
-    if getline('.') =~ '^[[:blank:]]*$'
-        return ''
-    endif
+function! <SID>do_right_align(right_border, keep_cursor)
     let indent_cmd = ''
     let move_left = 0
     let tab_width = &et ? &sw : 1
-    let keep_cursor = a:0 > 0 && a:1 == 'kc'
     let save_cursor = getpos('.')
     let move_cursor = 0
     let line_length = virtcol('$') - 1
@@ -56,7 +52,7 @@ function! <SID>right_align(right_border, ...)
     let end_shift = line_diff % &sw
     call setpos('.', save_cursor)
     " restore cursor position after undo (see Tip 1595 in vim.wikia.com)
-    if keep_cursor
+    if a:keep_cursor
         normal ix
         normal x
     endif
@@ -104,13 +100,26 @@ function! <SID>right_align(right_border, ...)
     if !empty(indent_cmd)
         exe indent_cmd
     endif
-    if keep_cursor
+    if a:keep_cursor
         call setpos('.', save_cursor)
     endif
     if restore_noshiftround
         set noshiftround
     endif
     return ''
+endfunction
+
+function! <SID>right_align(right_border, ...)
+    if getline('.') =~ '^[[:blank:]]*$'
+        return ''
+    endif
+    let keep_cursor = a:0 > 0 && a:1 == 'kc'
+    " simple workaround for cases when line is wrapped and options 'linebreak'
+    " and/or 'showbreak' are set: just call s:do_right_align() twice
+    if (&lbr || !empty(&sbr)) && winwidth('.') < virtcol('$') - 1
+        call s:do_right_align(a:right_border, keep_cursor)
+    endif
+    return s:do_right_align(a:right_border, keep_cursor)
 endfunction
 
 command! -range -nargs=* RightAlign     <line1>,<line2>
