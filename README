@@ -12,7 +12,7 @@ let g:RightAlign_ShiftRound = 0
 
 The script provides single command RightAlign with an optional argument. The optional argument can be set to 'kc' in order to make script function keep cursor on the same character of the line when moving it: this is especially useful in insert mode.
 
-To use script effectively you can choose to use mappings in insert and normal mode, for example
+To use script efficiently you can choose to use mappings in insert and normal mode, for example
 
 imap <silent> <C-b>    <Plug>RightAlign
 nmap <silent> <C-k>b    :RightAlign<CR>

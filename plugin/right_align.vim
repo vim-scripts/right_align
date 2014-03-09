@@ -1,6 +1,6 @@
 " File: right_align.vim
 " Author: Alexey Radkov
-" Version: 0.6
+" Version: 0.7
 " Description: A function to set right indentation, it can be useful in insert
 "              mode in addition to ^T, ^D and ^F
 " Usage:
@@ -18,11 +18,11 @@
 "       vmap <silent> <C-k>b :RightAlign<CR>
 
 
-if exists('right_align_plugin')
+if exists('g:loaded_RightAlignPlugin') && g:loaded_RightAlignPlugin
     finish
 endif
 
-let right_align_plugin = 1
+let g:loaded_RightAlignPlugin = 1
 
 if !exists('g:RightAlign_RightBorder')
     let g:RightAlign_RightBorder = &textwidth
@@ -33,12 +33,21 @@ if !exists('g:RightAlign_ShiftRound')
 endif
 
 function! <SID>do_right_align(right_border, keep_cursor)
+    let save_lbr = &lbr
+    let save_sbr = &sbr
+    let line_length = virtcol('$') - 1
+    let narrow_win = winwidth(0) < a:right_border || winwidth(0) < line_length
+    " unset temporarily 'lbr' and 'sbr' if line is or will be wrapped
+    if narrow_win
+        setlocal nolbr
+        setlocal sbr=
+        let line_length = virtcol('$') - 1
+    endif
     let indent_cmd = ''
     let move_left = 0
     let tab_width = &et ? &sw : 1
     let save_cursor = getpos('.')
     let move_cursor = 0
-    let line_length = virtcol('$') - 1
     let line_diff = a:right_border - line_length
     let move_count = line_diff / &sw
     let restore_noshiftround = 0
@@ -106,6 +115,10 @@ function! <SID>do_right_align(right_border, keep_cursor)
     if restore_noshiftround
         set noshiftround
     endif
+    if narrow_win
+        let &lbr = save_lbr
+        let &sbr = save_sbr
+    endif
     return ''
 endfunction
 
@@ -114,11 +127,6 @@ function! <SID>right_align(right_border, ...)
         return ''
     endif
     let keep_cursor = a:0 > 0 && a:1 == 'kc'
-    " simple workaround for cases when line is wrapped and options 'linebreak'
-    " and/or 'showbreak' are set: just call s:do_right_align() twice
-    if (&lbr || !empty(&sbr)) && winwidth('.') < virtcol('$') - 1
-        call s:do_right_align(a:right_border, keep_cursor)
-    endif
     return s:do_right_align(a:right_border, keep_cursor)
 endfunction
 
